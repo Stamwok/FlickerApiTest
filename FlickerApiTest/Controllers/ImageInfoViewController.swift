@@ -31,8 +31,8 @@ class ImageInfoViewController: UIViewController {
             self.ownerLabel.text = user
         }
         flickerApi.loadImage(image: imageData) { [weak self] image in
-            guard let self = self else { return }
-            self.imageData?.imageAspectRatio = self.getImageAspectRation(image: image!)
+            guard let self = self, let image = image else { return }
+            self.imageData?.imageAspectRatio = self.getImageAspectRation(image: image)
             let newConstraint = self.imageAspectRatio.constraintWithMultiplier(self.imageData!.imageAspectRatio!)
             self.imageView.removeConstraint(self.imageAspectRatio)
             self.imageView.addConstraint(newConstraint)
