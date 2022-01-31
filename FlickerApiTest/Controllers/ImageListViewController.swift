@@ -61,9 +61,9 @@ class ImageListViewController: UIViewController, UICollectionViewDelegate, UICol
      func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterCollectionReusableView.reuseID, for: indexPath) as! FooterCollectionReusableView
             footer.configure()
-         footer.loadIndicator.startAnimating()
          if flickerApi.prepareToLoad {
-             if let text = searchField.text, !text.isEmpty {
+             footer.loadIndicator.startAnimating()
+             if let text = searchField.text?.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: " ", with: "%20"), !text.isEmpty {
                  flickerApi.getSearchData(text: text, page: nextPage) { [weak self] imagesData in
                      guard let self = self else { return }
                      self.dataSource += imagesData
@@ -78,8 +78,33 @@ class ImageListViewController: UIViewController, UICollectionViewDelegate, UICol
                      self.flickerApi.prepareToLoad = imagesData.isEmpty ? false : true
                  }
              }
+         } else if dataSource.isEmpty{
+             showMessage(toastWith: "Images not found")
          }
             return footer
+     }
+    
+    private func showMessage(toastWith message : String) {
+        
+        let yPostition = self.view.frame.size.height - 44 - 16
+
+        let frame = CGRect(x: self.view.frame.size.width/2 - 64, y: yPostition, width: 150, height: 44)
+        let toast = UILabel(frame: frame)
+        toast.backgroundColor = .black.withAlphaComponent(0.7)
+        toast.textColor = .white
+        toast.textAlignment = .center;
+        toast.font = UIFont.systemFont(ofSize: 12)
+        toast.text = message
+        toast.alpha = 1.0
+        toast.layer.cornerRadius = 10;
+        toast.clipsToBounds  =  true
+        self.view.addSubview(toast)
+
+        UIView.animate(withDuration: 3, delay: 0.1, options: .curveEaseInOut, animations: {
+            toast.alpha = 0.0
+        }, completion: {(isCompleted) in
+            toast.removeFromSuperview()
+        })
     }
 }
 
