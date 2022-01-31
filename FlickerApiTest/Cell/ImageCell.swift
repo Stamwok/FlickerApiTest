@@ -13,7 +13,6 @@ class ImageCell: UICollectionViewCell {
     static let nib = UINib(nibName: String(describing: ImageCell.self), bundle: nil)
     
     @IBOutlet var imageView: UIImageView!
-    @IBOutlet var indicator: UIActivityIndicatorView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -21,7 +20,7 @@ class ImageCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         self.imageView?.image = nil
-        indicator.isHidden = true
+//        indicator.isHidden = true
     }
 
 }

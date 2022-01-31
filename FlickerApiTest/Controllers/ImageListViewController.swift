@@ -38,14 +38,11 @@ class ImageListViewController: UIViewController, UICollectionViewDelegate, UICol
         if let cachedImage = self.cache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
-            cell.indicator.startAnimating()
             self.flickerApi.loadImage(image: self.dataSource[indexPath.row]) { [weak self] image in
                 guard let self = self, let image = image else { return }
                 guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
                 cell.imageView.image = image
                 self.cache.setObject(image, forKey: key)
-                cell.indicator.stopAnimating()
-                cell.indicator.isHidden = true
             }
         }
         return cell
@@ -79,6 +76,7 @@ class ImageListViewController: UIViewController, UICollectionViewDelegate, UICol
                  }
              }
          } else if dataSource.isEmpty{
+             footer.loadIndicator.stopAnimating()
              showMessage(toastWith: "Images not found")
          }
             return footer
