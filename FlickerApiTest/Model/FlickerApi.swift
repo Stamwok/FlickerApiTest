@@ -38,26 +38,28 @@ class FlickerApi {
     
     struct SearchParameters {
         let apiKey = "68506994e52bac04d8c1d01c8894f51c"
+        let method = "flickr.photos.search"
+        let format = "json"
+        let nojsoncallback = 1
+        let perPage = 21
+        var page: Int
         var text: String
-        var method = "flickr.photos.search"
-        var format = "json"
-        var nojsoncallback = 1
-        var page = 1
-        var perPage = 21
+        
     }
     struct FeedParameters {
         let apiKey = "68506994e52bac04d8c1d01c8894f51c"
-        var method = "flickr.photos.getRecent"
-        var format = "json"
-        var nojsoncallback = 1
-        var page = 1
-        var perPage = 21
+        let method = "flickr.photos.getRecent"
+        let format = "json"
+        let nojsoncallback = 1
+        let perPage = 21
+        var page: Int
     }
-    struct ResponseType: Decodable {
-        var photos: ImagesList
-    }
-    struct ImagesList: Decodable {
-        var photo: [Image]
+    struct UserParameters {
+        let apiKey = "68506994e52bac04d8c1d01c8894f51c"
+        let method = "flickr.people.getInfo"
+        let format = "json"
+        let nojsoncallback = 1
+        var userId: String
     }
     
     private func configureRequest<T>(parameters: T) -> String {
@@ -73,7 +75,7 @@ class FlickerApi {
         return "\(url)?\(paramsForUrl)"
     }
     
-    func loadImage(image: Image, completionHandler: @escaping (UIImage?) -> ()) {
+    func loadImage(image: ImageInfo, completionHandler: @escaping (UIImage?) -> ()) {
         concurrentQueue.async {
             let server = image.server
             let id = image.id
@@ -89,11 +91,17 @@ class FlickerApi {
         }
     }
     
-    func getFeedData(completionHandler: @escaping ([Image]) -> ()) {
+    struct PhotosResponseType: Decodable {
+        var photos: ImagesList
+    }
+    struct ImagesList: Decodable {
+        var photo: [ImageInfo]
+    }
+    func getFeedData(page: Int, completionHandler: @escaping ([ImageInfo]) -> ()) {
         concurrentQueue.async { [weak self] in
-            guard let self = self, let urlForRequest = URL(string: self.configureRequest(parameters: FeedParameters())) else { return }
+            guard let self = self, let urlForRequest = URL(string: self.configureRequest(parameters: FeedParameters(page: page))) else { return }
             let session = URLSession.shared.dataTask(with: URLRequest(url: urlForRequest)) { data, response, error in
-                if let responseData = data, let imagesData = try? JSONDecoder().decode(ResponseType.self, from: responseData) {
+                if let responseData = data, let imagesData = try? JSONDecoder().decode(PhotosResponseType.self, from: responseData) {
                     DispatchQueue.main.async {
                         completionHandler(imagesData.photos.photo)
                     }
@@ -106,5 +114,44 @@ class FlickerApi {
             session.resume()
         }
         
+    }
+    
+    func getSearchData(text: String, page: Int, completionHandler: @escaping ([ImageInfo]) -> ()) {
+        concurrentQueue.async { [weak self] in
+            guard let self = self, let urlForRequest = URL(string: self.configureRequest(parameters: SearchParameters(page: page, text: text))) else { return }
+            let session = URLSession.shared.dataTask(with: URLRequest(url: urlForRequest)) { data, response, error in
+                if let responseData = data, let imagesData = try? JSONDecoder().decode(PhotosResponseType.self, from: responseData) {
+                    DispatchQueue.main.async {
+                        completionHandler(imagesData.photos.photo)
+                    }
+                } else if let response = response {
+                    print(response)
+                } else if let error = error {
+                    print(error)
+                }
+            }
+            session.resume()
+        }
+    }
+    
+    struct UserResponseType: Decodable {
+        var person: UserInfo
+    }
+    func getUserInfo(userId: String, completionHandler: @escaping (String) -> ()) {
+        concurrentQueue.async { [weak self] in
+            guard let self = self, let urlForRequest = URL(string: self.configureRequest(parameters: UserParameters(userId: userId))) else { return }
+            let session = URLSession.shared.dataTask(with: URLRequest(url: urlForRequest)) { data, response, error in
+                if let responseData = data, let userData = try? JSONDecoder().decode(UserResponseType.self, from: responseData) {
+                    DispatchQueue.main.async {
+                        completionHandler(userData.person.username.content)
+                    }
+                } else if let response = response {
+                    print(response)
+                } else if let error = error {
+                    print(error)
+                }
+            }
+            session.resume()
+        }
     }
 }

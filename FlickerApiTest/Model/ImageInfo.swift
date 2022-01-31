@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct Image: Decodable {
+struct ImageInfo: Decodable {
     var id: String
     var owner: String
     var title: String

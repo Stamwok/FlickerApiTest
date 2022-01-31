@@ -9,7 +9,7 @@ import UIKit
 
 class ImageInfoViewController: UIViewController {
     
-    var imageData: Image?
+    var imageData: ImageInfo?
     var flickerApi = FlickerApi()
     
     @IBOutlet var imageAspectRatio: NSLayoutConstraint!
@@ -24,10 +24,14 @@ class ImageInfoViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard let imageData = imageData else { return }
-        ownerLabel.text = imageData.owner
         titleLabel.text = imageData.title
         loadIndicator.startAnimating()
-        flickerApi.loadImage(image: imageData) { image in
+        flickerApi.getUserInfo(userId: imageData.owner) { [weak self] user in
+            guard let self = self else { return }
+            self.ownerLabel.text = user
+        }
+        flickerApi.loadImage(image: imageData) { [weak self] image in
+            guard let self = self else { return }
             self.imageData?.imageAspectRatio = self.getImageAspectRation(image: image!)
             let newConstraint = self.imageAspectRatio.constraintWithMultiplier(self.imageData!.imageAspectRatio!)
             self.imageView.removeConstraint(self.imageAspectRatio)
@@ -38,10 +42,9 @@ class ImageInfoViewController: UIViewController {
             self.loadIndicator.stopAnimating()
             self.loadIndicator.isHidden = true
         }
-        
     }
     
-    func getImageAspectRation(image: UIImage) -> CGFloat {
+    private func getImageAspectRation(image: UIImage) -> CGFloat {
         let imageWidth = image.size.width
         let imageHeight = image.size.height
         return imageWidth / imageHeight

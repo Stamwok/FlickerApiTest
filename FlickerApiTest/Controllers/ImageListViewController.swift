@@ -12,19 +12,17 @@ class ImageListViewController: UICollectionViewController {
     private let cache = NSCache<NSNumber, UIImage>()
     
     var flickerApi = FlickerApi()
-    var dataSource: [Image] = [] {
+    var nextPage = 1
+    var dataSource: [ImageInfo] = [] {
         didSet {
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
-            }
+                collectionView.reloadData()
+                nextPage += 1
         }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.collectionView.register(ImageCell.nib, forCellWithReuseIdentifier: ImageCell.reuseID)
-        flickerApi.getFeedData { images in
-            self.dataSource = images
-        }
+        self.collectionView.register(FooterCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterCollectionReusableView.reuseID)
     }
     
     // MARK: - collection view data source delegate
@@ -60,6 +58,18 @@ class ImageListViewController: UICollectionViewController {
         destination.imageData = dataSource[indexPath.row]
         present(destination, animated: true, completion: nil)
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterCollectionReusableView.reuseID, for: indexPath) as! FooterCollectionReusableView
+            footer.configure()
+            footer.loadIndicator.startAnimating()
+            flickerApi.getFeedData(page: nextPage) { [weak self] image in
+                guard let self = self else { return }
+                self.dataSource += image
+                footer.loadIndicator.stopAnimating()
+            }
+            return footer
+    }
 }
 
     // MARK: - collection view layout delegate
@@ -67,6 +77,10 @@ extension ImageListViewController: UICollectionViewDelegateFlowLayout {
      func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let sizeOfSquare = view.bounds.width / 3
         return CGSize(width: sizeOfSquare, height: sizeOfSquare)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.size.width, height: 50)
     }
 }
 
