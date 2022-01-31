@@ -7,9 +7,12 @@
 
 import UIKit
 
-class ImageListViewController: UICollectionViewController {
+class ImageListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    private let cache = NSCache<NSNumber, UIImage>()
+    private let cache = NSCache<NSString, UIImage>()
+    
+    @IBOutlet var collectionView: UICollectionView!
+    @IBOutlet var searchField: UITextField!
     
     var flickerApi = FlickerApi()
     var nextPage = 1
@@ -26,21 +29,21 @@ class ImageListViewController: UICollectionViewController {
     }
     
     // MARK: - collection view data source delegate
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dataSource.count
     }
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.reuseID, for: indexPath) as? ImageCell else { fatalError("Wrong cell") }
-        let itemNumber = NSNumber(value: indexPath.row)
-        if let cachedImage = self.cache.object(forKey: itemNumber) {
+         let key = NSString(string: dataSource[indexPath.row].id)
+        if let cachedImage = self.cache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
             cell.indicator.startAnimating()
-            self.flickerApi.loadImage(image: self.dataSource[Int(truncating: itemNumber)]) { [weak self] image in
+            self.flickerApi.loadImage(image: self.dataSource[indexPath.row]) { [weak self] image in
                 guard let self = self, let image = image else { return }
                 guard let cell = self.collectionView.cellForItem(at: indexPath) as? ImageCell else { return }
                 cell.imageView.image = image
-                self.cache.setObject(image, forKey: itemNumber)
+                self.cache.setObject(image, forKey: key)
                 cell.indicator.stopAnimating()
                 cell.indicator.isHidden = true
             }
@@ -49,21 +52,29 @@ class ImageListViewController: UICollectionViewController {
     }
 
     //MARK: - collectionView delegate
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let destination = self.storyboard?.instantiateViewController(withIdentifier: String(describing: ImageInfoViewController.self)) as? ImageInfoViewController else { return }
         destination.imageData = dataSource[indexPath.row]
         present(destination, animated: true, completion: nil)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterCollectionReusableView.reuseID, for: indexPath) as! FooterCollectionReusableView
             footer.configure()
-            footer.loadIndicator.startAnimating()
-            flickerApi.getFeedData(page: nextPage) { [weak self] image in
-                guard let self = self else { return }
-                self.dataSource += image
-                footer.loadIndicator.stopAnimating()
-            }
+         footer.loadIndicator.startAnimating()
+         if let text = searchField.text, !text.isEmpty {
+             flickerApi.getSearchData(text: text, page: nextPage) { [weak self] imagesData in
+                 guard let self = self else { return }
+                 self.dataSource += imagesData
+                 footer.loadIndicator.stopAnimating()
+             }
+         } else {
+             flickerApi.getFeedData(page: nextPage) { [weak self] imagesData in
+                 guard let self = self else { return }
+                 self.dataSource += imagesData
+                 footer.loadIndicator.stopAnimating()
+             }
+         }
             return footer
     }
 }
@@ -80,3 +91,16 @@ extension ImageListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+extension ImageListViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        dataSource = []
+        nextPage = 1
+        textField.resignFirstResponder()
+        return false
+    }
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        dataSource = []
+        nextPage = 1
+        return true
+    }
+}
