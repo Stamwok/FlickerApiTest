@@ -31,8 +31,6 @@ extension String {
 class FlickerApi {
     
     var concurrentQueue = DispatchQueue.global(qos: .utility)
-    
-    
 //    let secret = "982600208a708e17"
     let url = "https://www.flickr.com/services/rest"
     
@@ -44,7 +42,6 @@ class FlickerApi {
         let perPage = 21
         var page: Int
         var text: String
-        
     }
     struct FeedParameters {
         let apiKey = "68506994e52bac04d8c1d01c8894f51c"

@@ -14,5 +14,4 @@ struct ImageInfo: Decodable {
     var title: String
     var secret: String
     var server: String
-    var imageAspectRatio: CGFloat?
 }

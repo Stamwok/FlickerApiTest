@@ -95,8 +95,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="imageAspectRatio" destination="tEj-SC-ZQs" id="zKp-kc-HOP"/>
                         <outlet property="imageView" destination="Zi1-U0-5mw" id="jbc-nr-xv2"/>
+                        <outlet property="imageViewAspectRatio" destination="tEj-SC-ZQs" id="TWA-Ui-Y9S"/>
                         <outlet property="loadIndicator" destination="7uh-2j-yZy" id="Kmy-mG-t41"/>
                         <outlet property="ownerLabel" destination="rmM-Fc-OnU" id="taV-W4-g6k"/>
                         <outlet property="titleLabel" destination="2vB-SO-ANB" id="x71-Og-sjo"/>

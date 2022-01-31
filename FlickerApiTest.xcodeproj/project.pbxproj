@@ -19,7 +19,6 @@
 		0439D25227A1CB7E00BD1C3C /* FlickerApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439D25127A1CB7E00BD1C3C /* FlickerApi.swift */; };
 		045B632827A34BB800FD5930 /* ImageInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B632727A34BB800FD5930 /* ImageInfoViewController.swift */; };
 		045B633527A6DB1600FD5930 /* FooterCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B633327A6DB1600FD5930 /* FooterCollectionReusableView.swift */; };
-		045B633627A6DB1600FD5930 /* FooterCollectionReusableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 045B633427A6DB1600FD5930 /* FooterCollectionReusableView.xib */; };
 		045B633827A73AAC00FD5930 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B633727A73AAC00FD5930 /* UserInfo.swift */; };
 /* End PBXBuildFile section */
 
@@ -38,7 +37,6 @@
 		0439D25127A1CB7E00BD1C3C /* FlickerApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickerApi.swift; sourceTree = "<group>"; };
 		045B632727A34BB800FD5930 /* ImageInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInfoViewController.swift; sourceTree = "<group>"; };
 		045B633327A6DB1600FD5930 /* FooterCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterCollectionReusableView.swift; sourceTree = "<group>"; };
-		045B633427A6DB1600FD5930 /* FooterCollectionReusableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FooterCollectionReusableView.xib; sourceTree = "<group>"; };
 		045B633727A73AAC00FD5930 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -91,7 +89,6 @@
 				0439D24827A1AC2800BD1C3C /* ImageCell.swift */,
 				0439D24927A1AC2800BD1C3C /* ImageCell.xib */,
 				045B633327A6DB1600FD5930 /* FooterCollectionReusableView.swift */,
-				045B633427A6DB1600FD5930 /* FooterCollectionReusableView.xib */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -178,7 +175,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0439D23D27A199EB00BD1C3C /* LaunchScreen.storyboard in Resources */,
-				045B633627A6DB1600FD5930 /* FooterCollectionReusableView.xib in Resources */,
 				0439D23A27A199EB00BD1C3C /* Assets.xcassets in Resources */,
 				0439D24B27A1AC2800BD1C3C /* ImageCell.xib in Resources */,
 				0439D23827A199E400BD1C3C /* Main.storyboard in Resources */,

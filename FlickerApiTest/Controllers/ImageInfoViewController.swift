@@ -9,10 +9,10 @@ import UIKit
 
 class ImageInfoViewController: UIViewController {
     
-    var imageData: ImageInfo?
+    var imageData: ImageInfo!
     var flickerApi = FlickerApi()
     
-    @IBOutlet var imageAspectRatio: NSLayoutConstraint!
+    @IBOutlet var imageViewAspectRatio: NSLayoutConstraint!
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var loadIndicator: UIActivityIndicatorView!
     @IBOutlet var ownerLabel: UILabel!
@@ -32,11 +32,11 @@ class ImageInfoViewController: UIViewController {
         }
         flickerApi.loadImage(image: imageData) { [weak self] image in
             guard let self = self, let image = image else { return }
-            self.imageData?.imageAspectRatio = self.getImageAspectRation(image: image)
-            let newConstraint = self.imageAspectRatio.constraintWithMultiplier(self.imageData!.imageAspectRatio!)
-            self.imageView.removeConstraint(self.imageAspectRatio)
+            let newImageAspectRatio = self.getImageAspectRation(image: image)
+            let newConstraint = self.imageViewAspectRatio.constraintWithMultiplier(newImageAspectRatio)
+            self.imageView.removeConstraint(self.imageViewAspectRatio)
             self.imageView.addConstraint(newConstraint)
-            self.imageAspectRatio = newConstraint
+            self.imageViewAspectRatio = newConstraint
             self.imageView.updateConstraintsIfNeeded()
             self.imageView.image = image
             self.loadIndicator.stopAnimating()
