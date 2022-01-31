@@ -62,17 +62,21 @@ class ImageListViewController: UIViewController, UICollectionViewDelegate, UICol
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterCollectionReusableView.reuseID, for: indexPath) as! FooterCollectionReusableView
             footer.configure()
          footer.loadIndicator.startAnimating()
-         if let text = searchField.text, !text.isEmpty {
-             flickerApi.getSearchData(text: text, page: nextPage) { [weak self] imagesData in
-                 guard let self = self else { return }
-                 self.dataSource += imagesData
-                 footer.loadIndicator.stopAnimating()
-             }
-         } else {
-             flickerApi.getFeedData(page: nextPage) { [weak self] imagesData in
-                 guard let self = self else { return }
-                 self.dataSource += imagesData
-                 footer.loadIndicator.stopAnimating()
+         if flickerApi.prepareToLoad {
+             if let text = searchField.text, !text.isEmpty {
+                 flickerApi.getSearchData(text: text, page: nextPage) { [weak self] imagesData in
+                     guard let self = self else { return }
+                     self.dataSource += imagesData
+                     footer.loadIndicator.stopAnimating()
+                     self.flickerApi.prepareToLoad = imagesData.isEmpty ? false : true
+                 }
+             } else {
+                 flickerApi.getFeedData(page: nextPage) { [weak self] imagesData in
+                     guard let self = self else { return }
+                     self.dataSource += imagesData
+                     footer.loadIndicator.stopAnimating()
+                     self.flickerApi.prepareToLoad = imagesData.isEmpty ? false : true
+                 }
              }
          }
             return footer
@@ -95,12 +99,14 @@ extension ImageListViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         dataSource = []
         nextPage = 1
+        flickerApi.prepareToLoad = true
         textField.resignFirstResponder()
         return false
     }
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         dataSource = []
         nextPage = 1
+        flickerApi.prepareToLoad = true
         return true
     }
 }

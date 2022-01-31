@@ -30,6 +30,8 @@ extension String {
 
 class FlickerApi {
     
+    public var prepareToLoad = true
+    
     var concurrentQueue = DispatchQueue.global(qos: .utility)
 //    let secret = "982600208a708e17"
     let url = "https://www.flickr.com/services/rest"
